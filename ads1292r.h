@@ -47,6 +47,7 @@ class ads1292r
 {
   public:
     static void ads1292_Init(void);
+    static void ads1292_TestInit(void);
     static void ads1292_Reset(void);
 	static void ads1292_Reg_Write (unsigned char READ_WRITE_ADDRESS, unsigned char DATA);
 	static void ads1292_Reg_Read (unsigned char READ_WRITE_ADDRESS);
