@@ -23,7 +23,7 @@ void setup()
 	pinMode(ADS1292_PWDN_PIN, OUTPUT);  //4
   
 	
-	ADS1292.ads1292_TestInit();
+	ADS1292.ads1292_Init();
 }
 
 void loop() 
@@ -52,9 +52,6 @@ void loop()
 			//EEG_Ch1_Data[j1++]=  SPI_RX_Buff[i+0];
 			//EEG_Ch1_Data[j1++]= SPI_RX_Buff[i+1];
 			//EEG_Ch1_Data[j1++]= SPI_RX_Buff[i+2];
-		
-
-
 			EEG_Ch2_Data[j2++]= (unsigned char)SPI_RX_Buff[i+3];
 			EEG_Ch2_Data[j2++]= (unsigned char)SPI_RX_Buff[i+4];
 			EEG_Ch2_Data[j2++]= (unsigned char)SPI_RX_Buff[i+5];
@@ -64,21 +61,14 @@ void loop()
 		for(t=0; t< 1 ; t++)
 		{	
 			buff = 0;
-					
-											
-			
-			
 			ueegtemp = (unsigned long) ((EEG_Ch2_Data[pckt]<<16)|(EEG_Ch2_Data[pckt+1]<<8)|EEG_Ch2_Data[pckt+2]);
-			Serial.print(ueegtemp,HEX);        
+			//Serial.print(ueegtemp,HEX);        
 			//Serial.print("  ");                
 			ueegtemp = (unsigned long) (ueegtemp<<8);
 			seegtemp = (signed long) (ueegtemp);
 			seegtemp = (signed long) (seegtemp>>8);	
             
-			Serial.println(seegtemp,HEX);
-			//delay(100);
-			//  seegtemp = 1000;
-
+			//Serial.println(seegtemp,HEX);
 			pckt+= 3;
 							
 			datac[buff++] = (unsigned char) (seegtemp);
@@ -89,15 +79,13 @@ void loop()
 							
 						
 			
-			//Serial.println(seegtemp);	
 
-			for(i=0; i<39; i++) // transmit the data
+			for(i=0; i<4; i++) // transmit the data
 			{
-			//	Serial.write(datac[i]);
-				//udi_cdc_putc(datac[i]);
-				//cpu_delay_us(90, 48000000);		
-			}					
-			//	cpu_delay_us(100, 48000000);	
+				Serial.write(datac[i]);	
+                                
+			}	
+                        Serial.write('\n');				
 		}
 		
 		SPI_RX_Buff_Count = 0;
