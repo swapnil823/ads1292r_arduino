@@ -15,7 +15,7 @@ char* ads1292r::ads1292_Read_Data()
    
    digitalWrite(ADS1292_CS_PIN, LOW);
    
-	for (int i = 0; i < 9; ++i)
+	for (int i = 0; i < 9; ++i) //ads sends us 9 bytes {stat}[3]{ch1}[3]{ch2}[3]
 	{
 		SPI_Dummy_Buff[i] = SPI.transfer(CONFIG_SPI_MASTER_DUMMY);
 		
@@ -23,7 +23,55 @@ char* ads1292r::ads1292_Read_Data()
 	
     digitalWrite(ADS1292_CS_PIN, HIGH);
 	
-	return SPI_Dummy_Buff;
+    return SPI_Dummy_Buff;
+}
+
+void ads1292r::ads1292_TestInit()
+{
+  Serial.begin(57600);
+ 
+  // start the SPI library:
+  SPI.begin();
+  SPI.setBitOrder(MSBFIRST); 
+  //CPOL = 0, CPHA = 1
+  SPI.setDataMode(SPI_MODE1);
+  // Selecting 1Mhz clock for SPI
+  SPI.setClockDivider(SPI_CLOCK_DIV16);
+
+  ads1292_Reset();
+  delay(100);
+  ads1292_Disable_Start();
+  ads1292_Enable_Start();
+  
+  ads1292_Hard_Stop();
+  ads1292_Start_Data_Conv_Command();
+  ads1292_Soft_Stop();
+  delay(50);
+  ads1292_Stop_Read_Data_Continuous();					// SDATAC command
+  delay(300);
+  
+  ads1292_Reg_Write(ADS1292_REG_CONFIG1, 0x00); 		//Set sampling rate to 125 SPS
+  delay(10);
+  ads1292_Reg_Write(ADS1292_REG_CONFIG2, 0b10100011);	//leadoff ,test signal 1hz  ref 2.42v 
+  delay(10);
+  ads1292_Reg_Write(ADS1292_REG_LOFF, 0b00010000);		//Lead-off defaults
+  delay(10);
+  ads1292_Reg_Write(ADS1292_REG_CH1SET, 0b01000101);	//Ch 1 enabled, gain 6, connected to test signal
+  delay(10);
+  ads1292_Reg_Write(ADS1292_REG_CH2SET, 0b01100101);	//Ch 2 enabled, gain 6, connected to test signal
+  delay(10);
+  ads1292_Reg_Write(ADS1292_REG_RLDSENS, 0b00101100);	//RLD settings: fmod/16, RLD enabled, RLD inputs from Ch2 only
+  delay(10);
+  ads1292_Reg_Write(ADS1292_REG_LOFFSENS, 0x00);		//LOFF settings: all disabled
+  delay(10);
+														//Skip register 8, LOFF Settings default
+  ads1292_Reg_Write(ADS1292_REG_RESP1, 0b00110010);		// first two bits inverted Respiration: MOD/DEMOD turned only, phase 0
+  delay(10);
+  ads1292_Reg_Write(ADS1292_REG_RESP2, 0b00000011);		//Respiration: Calib OFF, respiration freq defaults internal rldref
+  delay(10);
+  ads1292_Start_Read_Data_Continuous();
+  delay(10);
+  ads1292_Enable_Start();
 }
 
 void ads1292r::ads1292_Init()
@@ -52,8 +100,8 @@ void ads1292r::ads1292_Init()
   
   ads1292_Reg_Write(ADS1292_REG_CONFIG1, 0x00); 		//Set sampling rate to 125 SPS
   delay(10);
-  //ads1292_Reg_Write(ADS1292_REG_CONFIG2, 0b10100000);	//Lead-off comp off, test signal disabled
-  ads1292_Reg_Write(ADS1292_REG_CONFIG2, 0b10100011);	//modified test signal 1hz
+  ads1292_Reg_Write(ADS1292_REG_CONFIG2, 0b10100000);	//Lead-off comp off, test signal disabled
+  //ads1292_Reg_Write(ADS1292_REG_CONFIG2, 0b10100011);	//modified test signal 1hz
   delay(10);
   ads1292_Reg_Write(ADS1292_REG_LOFF, 0b00010000);		//Lead-off defaults
   delay(10);
