@@ -49,9 +49,9 @@ void ads1292r::ads1292_TestInit()
   ads1292_Stop_Read_Data_Continuous();					// SDATAC command
   delay(300);
   
-  ads1292_Reg_Write(ADS1292_REG_CONFIG1, 0x00); 		//Set sampling rate to 125 SPS
+  ads1292_Reg_Write(ADS1292_REG_CONFIG1, 0x01); 		//Set sampling rate to 250 SPS
   delay(10);
-  ads1292_Reg_Write(ADS1292_REG_CONFIG2, 0b10100011);	//leadoff ,test signal 1hz  ref 2.42v 
+  ads1292_Reg_Write(ADS1292_REG_CONFIG2, 0b10100011);	//leadoff ,test signal 1hz  ref 2.42v lastbit=1, lastbit=0 (DC)
   delay(10);
   ads1292_Reg_Write(ADS1292_REG_LOFF, 0b00010000);		//Lead-off defaults
   delay(10);
